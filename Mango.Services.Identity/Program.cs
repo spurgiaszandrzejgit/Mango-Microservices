@@ -1,8 +1,9 @@
-using System.Globalization;
-using System.Text;
 using Duende.IdentityServer.Licensing;
 using Mango.Services.Identity;
+using Mango.Services.Identity.Initializer;
 using Serilog;
+using System.Globalization;
+using System.Text;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
@@ -26,6 +27,12 @@ try
             var usage = app.Services.GetRequiredService<LicenseUsageSummary>();
             Console.Write(Summary(usage));
         });
+    }
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitializer.Initialize();
     }
 
     app.Run();
