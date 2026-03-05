@@ -1,4 +1,5 @@
 using Mango.Web.Models;
+using Mango.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -11,9 +12,29 @@ namespace Mango.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IProductService _productService;
+        public HomeController(IProductService productService)
         {
-            return View();
+            _productService = productService;   
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var response = await _productService.GetProductsAsync("");
+            
+            if (response == null)
+            {
+                TempData["error"] = "No response from ProductService";
+                return View(new List<ProductDTO>());
+            }
+
+            if (!response.IsSuccess)
+            {
+                TempData["error"] = response.ErrorMessages?.FirstOrDefault() ?? "Error while fetching products";
+                return View(new List<ProductDTO>());
+            }
+
+            return View(response.Result);
         }
 
         public IActionResult Privacy()

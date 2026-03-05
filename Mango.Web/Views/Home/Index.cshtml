@@ -1,8 +1,66 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<Mango.Web.Models.ProductDTO>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-4 mb-4">
+                <div class="card h-100 shadow-sm">
+
+                    <img src="@product.ImageUrl"
+                         class="card-img-top"
+                         style="height:220px; object-fit:cover;" />
+
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="card-title text-success">
+                            @product.Name
+                        </h4>
+
+                        <span class="badge bg-secondary mb-2">
+                            @product.CategoryName
+                        </span>
+
+                        <p class="card-text text-muted">
+                            @Html.Raw(@product.Description)
+                        </p>
+
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold fs-5 text-dark">
+                                    @product.Price.ToString("c")
+                                </span>
+
+                                <a asp-controller="Products"
+                                   asp-action="Details"
+                                   asp-route-productId="@product.ProductId"
+                                   class="btn btn-success btn-sm">
+                                    Details
+                                </a>
+                            </div>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="mt-2 d-flex justify-content-between">
+                                    <a asp-controller="Products"
+                                       asp-action="ProductEdit"
+                                       asp-route-productId="@product.ProductId"
+                                       class="btn btn-outline-primary btn-sm w-50 me-1">
+                                        Edit
+                                    </a>
+
+                                    <a asp-controller="Products"
+                                       asp-action="ProductDelete"
+                                       asp-route-productId="@product.ProductId"
+                                       class="btn btn-outline-danger btn-sm w-50 ms-1">
+                                        Delete
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
 </div>

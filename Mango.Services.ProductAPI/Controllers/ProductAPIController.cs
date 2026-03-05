@@ -17,7 +17,6 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<ResponseDTO<IEnumerable<ProductDTO>>>> Get()
         {
             try
@@ -36,7 +35,6 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [Authorize]
         public async Task<ActionResult<ResponseDTO<ProductDTO>>> GetById(int id)
         {
             try

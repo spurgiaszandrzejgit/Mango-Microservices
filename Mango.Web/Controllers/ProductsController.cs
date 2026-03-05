@@ -1,6 +1,7 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mango.Web.Controllers
@@ -41,6 +42,7 @@ namespace Mango.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult ProductCreate()
         {
             return View();
@@ -48,6 +50,7 @@ namespace Mango.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductCreate(ProductVM vm)
         {
             if (!ModelState.IsValid)
@@ -75,6 +78,7 @@ namespace Mango.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductEdit(int productId)
         {
             var accessToken = await HttpContext.GetTokenAsync("access_token");
@@ -105,6 +109,7 @@ namespace Mango.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductEdit(int productId, ProductVM vm)
         {
             if (!ModelState.IsValid)
@@ -152,6 +157,7 @@ namespace Mango.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductDelete(int productId)
         {
             var accessToken = await HttpContext.GetTokenAsync("access_token");
@@ -180,6 +186,7 @@ namespace Mango.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ProductDelete(ProductVM vm)
         {
             var accessToken = await HttpContext.GetTokenAsync("access_token");
@@ -204,6 +211,35 @@ namespace Mango.Web.Controllers
 
             TempData["success"] = "Product deleted";
             return RedirectToAction(nameof(ProductsIndex));
+        }
+
+
+        [Authorize]
+        public async Task<IActionResult> Details(int productId)
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                TempData["error"] = "Access token is missing. Please login again.";
+                return RedirectToAction("Login", "Home");
+            }
+
+            var response = await _productService.GetProductByIdAsync(productId, token);
+
+            if (response == null)
+            {
+                TempData["error"] = "No response from ProductService";
+                return View(new ProductDTO());
+            }
+
+            if (!response.IsSuccess)
+            {
+                TempData["error"] = response.ErrorMessages?.FirstOrDefault() ?? "Error while fetching products";
+                return View(new ProductDTO());
+            }
+
+            return View(response.Result);
         }
     }
 }
