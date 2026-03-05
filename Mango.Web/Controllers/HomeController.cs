@@ -33,7 +33,7 @@ namespace Mango.Web.Controllers
 
         public IActionResult Logout()
         {
-            return SignOut(new AuthenticationProperties { RedirectUri = "/" }, OpenIdConnectDefaults.AuthenticationScheme, CookieAuthenticationDefaults.AuthenticationScheme);
+            return SignOut(new AuthenticationProperties { RedirectUri = "/" }, "oidc", "Cookies");
         }
 
     }

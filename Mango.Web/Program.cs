@@ -37,6 +37,10 @@ builder.Services.AddAuthentication(options =>
     options.UsePkce = true;
 
     options.GetClaimsFromUserInfoEndpoint = true;
+
+    options.SignedOutCallbackPath = "/signout-callback-oidc";
+    options.SignedOutRedirectUri = "/";
+
     options.SaveTokens = true;
 
     options.Scope.Clear();
