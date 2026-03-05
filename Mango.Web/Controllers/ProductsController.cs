@@ -1,5 +1,6 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Services.IServices;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mango.Web.Controllers
@@ -21,7 +22,8 @@ namespace Mango.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ProductsIndex()
         {
-            var response = await _productService.GetProductsAsync();
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _productService.GetProductsAsync(accessToken);
 
             if (response == null)
             {
@@ -62,7 +64,9 @@ namespace Mango.Web.Controllers
                 ImageUrl = imageUrl
             };
 
-            var response = await _productService.CreateProductAsync(dto);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+
+            var response = await _productService.CreateProductAsync(dto, accessToken);
 
             if (response == null || !response.IsSuccess)
                 return View(vm);
@@ -73,7 +77,8 @@ namespace Mango.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ProductEdit(int productId)
         {
-            var response = await _productService.GetProductByIdAsync(productId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _productService.GetProductByIdAsync(productId, accessToken);
 
             if (response == null || !response.IsSuccess || response.Result == null)
             {
@@ -105,7 +110,8 @@ namespace Mango.Web.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var response = await _productService.GetProductByIdAsync(productId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _productService.GetProductByIdAsync(productId, accessToken);
 
             if (response == null || !response.IsSuccess || response.Result == null)
             {
@@ -134,7 +140,7 @@ namespace Mango.Web.Controllers
                 ImageUrl = imageUrl
             };
 
-            var updateResponse = await _productService.UpdateProductAsync(productId, dto);
+            var updateResponse = await _productService.UpdateProductAsync(productId, dto, accessToken);
 
             if (updateResponse == null || !updateResponse.IsSuccess)
             {
@@ -148,7 +154,8 @@ namespace Mango.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ProductDelete(int productId)
         {
-            var response = await _productService.GetProductByIdAsync(productId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _productService.GetProductByIdAsync(productId, accessToken);
 
             if (response == null || !response.IsSuccess || response.Result == null)
             {
@@ -175,7 +182,8 @@ namespace Mango.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProductDelete(ProductVM vm)
         {
-            var getResponse = await _productService.GetProductByIdAsync(vm.ProductId);
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+            var getResponse = await _productService.GetProductByIdAsync(vm.ProductId, accessToken);
             if (getResponse == null || !getResponse.IsSuccess || getResponse.Result == null)
             {
                 TempData["error"] = "Product not found";
@@ -184,7 +192,7 @@ namespace Mango.Web.Controllers
 
             var imageUrl = getResponse.Result.ImageUrl;
 
-            var deleteResponse = await _productService.DeleteProductAsync(vm.ProductId);
+            var deleteResponse = await _productService.DeleteProductAsync(vm.ProductId, accessToken);
 
             if (deleteResponse == null || !deleteResponse.IsSuccess || deleteResponse.Result == false)
             {

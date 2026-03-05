@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Mango.Web.Controllers
 {
@@ -26,7 +27,8 @@ namespace Mango.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult Login()
+        [Authorize]
+        public async Task<IActionResult> Login()
         {
             return Challenge(new AuthenticationProperties { RedirectUri = "/" }, "oidc");
         }

@@ -19,6 +19,7 @@ builder.Services.AddHttpClient("MangoAPI", client =>
     client.BaseAddress = new Uri(SD.ProductAPIBase);
 });
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = "Cookies";
@@ -29,6 +30,7 @@ builder.Services.AddAuthentication(options =>
 .AddOpenIdConnect("oidc", options =>
 {
     options.Authority = builder.Configuration["ServiceUrl:IdentityAPI"]!;
+    options.MapInboundClaims = false;
 
     options.ClientId = "mango.web";
     options.ClientSecret = "mango-web-secret";

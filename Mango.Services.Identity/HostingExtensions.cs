@@ -1,4 +1,5 @@
 using Duende.IdentityServer;
+using Duende.IdentityServer.Services;
 using Mango.Services.Identity.DbContext;
 using Mango.Services.Identity.Initializer;
 using Mango.Services.Identity.Models;
@@ -52,6 +53,7 @@ internal static class HostingExtensions
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
         builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+        builder.Services.AddTransient<IProfileService, ProfileService>();
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
@@ -82,6 +84,7 @@ internal static class HostingExtensions
         isBuilder.AddInMemoryIdentityResources(Config.IdentityResources);
         isBuilder.AddInMemoryApiScopes(Config.ApiScopes);
         isBuilder.AddInMemoryClients(Config.Clients);
+        isBuilder.AddInMemoryApiResources(Config.ApiResources);
 
 
         // if you want to use server-side sessions: https://blog.duendesoftware.com/posts/20220406_session_management/

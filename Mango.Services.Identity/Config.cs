@@ -19,6 +19,16 @@ public static class Config
             new ApiScope("mango", "Mango API")
         };
 
+    public static IEnumerable<ApiResource> ApiResources =>
+    new[]
+    {
+        new ApiResource("mango_api", "Mango API")
+        {
+            Scopes = { "mango" },
+            UserClaims = { "name", "role" }
+        }
+    };
+
     public static IEnumerable<Client> Clients =>
         new Client[]
         {

@@ -11,16 +11,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new()
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter: Bearer {your JWT token}"
+        Title = "Product API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+    {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Enter: Bearer {your JWT token}"
+    });
+
+    options.AddSecurityRequirement(document =>
+    new OpenApiSecurityRequirement()
+    {
+        [new OpenApiSecuritySchemeReference("bearer", document)] = []
     });
 });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
