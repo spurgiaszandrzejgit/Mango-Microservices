@@ -1,10 +1,12 @@
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Mango.Services.Identity.DbContext;
+using Mango.Services.Identity.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Mango.Services.Identity.Pages.Account.Create;
 
@@ -12,11 +14,10 @@ namespace Mango.Services.Identity.Pages.Account.Create;
 [AllowAnonymous]
 public class Index(
     IIdentityServerInteractionService interaction,
-    TestUserStore? users = null)
+    UserManager<ApplicationUser> userManager,
+    SignInManager<ApplicationUser> signInManager)
     : PageModel
 {
-    private readonly TestUserStore _users = users ?? throw new InvalidOperationException("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
-
     [BindProperty]
     public InputModel Input { get; set; } = default!;
 
@@ -30,82 +31,68 @@ public class Index(
 
     public async Task<IActionResult> OnPost()
     {
-        // check if we are in the context of an authorization request
         var context = await interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 
-        // the user clicked the "cancel" button
         if (Input.Button != "create")
         {
             if (context != null)
             {
-                // if the user cancels, send a result back into IdentityServer as if they 
-                // denied the consent (even if this client does not require consent).
-                // this will send back an access denied OIDC error response to the client.
                 await interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
 
-                // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
                 if (context.IsNativeClient())
-                {
-                    // The client is native, so this change in how to
-                    // return the response is for better UX for the end user.
                     return this.LoadingPage(Input.ReturnUrl);
-                }
 
                 return Redirect(Input.ReturnUrl ?? "~/");
             }
-            else
-            {
-                // since we don't have a valid context, then we just go back to the home page
-                return Redirect("~/");
-            }
+
+            return Redirect("~/");
         }
 
-        if (_users.FindByUsername(Input.Username) != null)
+        if (!ModelState.IsValid)
+            return Page();
+
+        var existing = await userManager.FindByNameAsync(Input.Username)
+                      ?? await userManager.FindByEmailAsync(Input.Email);
+
+        if (existing != null)
         {
-            ModelState.AddModelError("Input.Username", "Invalid username");
+            ModelState.AddModelError(string.Empty, "User already exists.");
+            return Page();
         }
 
-        if (ModelState.IsValid)
+        var user = new ApplicationUser
         {
-            var user = _users.CreateUser(Input.Username, Input.Password, Input.Name, Input.Email);
+            UserName = Input.Username,
+            Email = Input.Email,
+            EmailConfirmed = true,
+            FirstName = Input.Name,
+            LastName = ""
+        };
 
-            // issue authentication cookie with subject ID and username
-            var isuser = new IdentityServerUser(user.SubjectId)
-            {
-                DisplayName = user.Username
-            };
+        var createResult = await userManager.CreateAsync(user, Input.Password);
+        if (!createResult.Succeeded)
+        {
+            foreach (var err in createResult.Errors)
+                ModelState.AddModelError(string.Empty, err.Description);
 
-            await HttpContext.SignInAsync(isuser);
-
-            if (context != null)
-            {
-                if (context.IsNativeClient())
-                {
-                    // The client is native, so this change in how to
-                    // return the response is for better UX for the end user.
-                    return this.LoadingPage(Input.ReturnUrl);
-                }
-
-                // we can trust Input.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                return Redirect(Input.ReturnUrl ?? "~/");
-            }
-
-            // request for a local page
-            if (Url.IsLocalUrl(Input.ReturnUrl))
-            {
-                return Redirect(Input.ReturnUrl);
-            }
-            else if (string.IsNullOrEmpty(Input.ReturnUrl))
-            {
-                return Redirect("~/");
-            }
-            else
-            {
-                // user might have clicked on a malicious link - should be logged
-                throw new ArgumentException("invalid return URL");
-            }
+            return Page();
         }
 
-        return Page();
+        await userManager.AddToRoleAsync(user, "Customer");
+
+        await signInManager.SignInAsync(user, isPersistent: false);
+
+        if (context != null)
+        {
+            if (context.IsNativeClient())
+                return this.LoadingPage(Input.ReturnUrl);
+
+            return Redirect(Input.ReturnUrl ?? "~/");
+        }
+
+        if (Url.IsLocalUrl(Input.ReturnUrl))
+            return Redirect(Input.ReturnUrl!);
+
+        return Redirect("~/");
     }
 }
