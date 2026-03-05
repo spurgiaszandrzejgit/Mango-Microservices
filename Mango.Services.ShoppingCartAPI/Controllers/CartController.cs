@@ -8,7 +8,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
 {
     [ApiController]
     [Route("api/cart")]
-    // [Authorize] // включи, когда подключишь JWT
+    // [Authorize] // включи, когда подключишь JWT111
     public class CartController : ControllerBase
     {
         private readonly ICartRepository _cartRepository;
