@@ -1,9 +1,12 @@
-using System.Globalization;
 using Duende.IdentityServer;
-using Mango.Services.Identity.Pages;
+using Mango.Services.Identity.DbContext;
+using Mango.Services.Identity.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Filters;
+using System.Globalization;
 
 namespace Mango.Services.Identity;
 
@@ -45,6 +48,15 @@ internal static class HostingExtensions
 
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(connectionString));
+
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+
         builder.Services.AddRazorPages();
 
         var isBuilder = builder.Services.AddIdentityServer(options =>
@@ -59,8 +71,8 @@ internal static class HostingExtensions
                 {
                     options.Diagnostics.ChunkSize = 1024 * 1024 * 10; // 10 MB
                 }
-            })
-            .AddTestUsers(TestUsers.Users)
+            }) 
+            .AddAspNetIdentity<ApplicationUser>()
             .AddLicenseSummary();
 
         // in-memory, code config
@@ -116,10 +128,10 @@ internal static class HostingExtensions
         app.UseStaticFiles();
         app.UseRouting();
         app.UseIdentityServer();
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapRazorPages()
-            .RequireAuthorization();
+        app.MapRazorPages();
 
         return app;
     }

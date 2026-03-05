@@ -1,3 +1,4 @@
+using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 
 namespace Mango.Services.Identity;
@@ -9,44 +10,54 @@ public static class Config
         {
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
+            new IdentityResources.Email(),
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-            new ApiScope("scope1"),
-            new ApiScope("scope2"),
+            new ApiScope("mango", "Mango API")
         };
 
     public static IEnumerable<Client> Clients =>
         new Client[]
         {
-            // m2m client credentials flow client
+            // service-to-service (machine-to-machine)
             new Client
             {
-                ClientId = "m2m.client",
-                ClientName = "Client Credentials Client",
+                ClientId = "mango.m2m",
+                ClientName = "Mango Service Client",
 
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
-                ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
+                ClientSecrets = { new Secret("mango-m2m-secret".Sha256()) },
 
-                AllowedScopes = { "scope1" }
+                AllowedScopes = { "mango" }
             },
 
-            // interactive client using code flow + pkce
+            // Mango.Web (interactive user) - Authorization Code + PKCE
             new Client
             {
-                ClientId = "interactive",
-                ClientSecrets = { new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256()) },
+                ClientId = "mango.web",
+                ClientName = "Mango Web",
+
+                // Для server-side MVC нормально иметь секрет
+                ClientSecrets = { new Secret("mango-web-secret".Sha256()) },
 
                 AllowedGrantTypes = GrantTypes.Code,
+                RequirePkce = true,
 
-                RedirectUris = { "https://localhost:44300/signin-oidc" },
-                FrontChannelLogoutUri = "https://localhost:44300/signout-oidc",
-                PostLogoutRedirectUris = { "https://localhost:44300/signout-callback-oidc" },
+                RedirectUris = { "https://localhost:44382/signin-oidc" },
+                PostLogoutRedirectUris = { "https://localhost:44382/signout-callback-oidc" },
 
                 AllowOfflineAccess = true,
-                AllowedScopes = { "openid", "profile", "scope2" }
+
+                AllowedScopes =
+                {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    IdentityServerConstants.StandardScopes.Email,
+                    "mango"
+                }
             },
         };
 }
