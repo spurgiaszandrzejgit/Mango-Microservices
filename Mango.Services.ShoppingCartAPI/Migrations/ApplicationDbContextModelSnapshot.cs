@@ -32,17 +32,29 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
                     b.Property<int>("CartHeaderId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Count")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("CartDetailsId");
 
-                    b.HasIndex("CartHeaderId");
-
-                    b.HasIndex("ProductId");
+                    b.HasIndex("CartHeaderId", "ProductId")
+                        .IsUnique();
 
                     b.ToTable("CartDetails");
                 });
@@ -55,43 +67,19 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartHeaderId"));
 
-                    b.Property<string>("CouponCod")
-                        .IsRequired()
+                    b.Property<string>("CouponCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("CartHeaderId");
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("CartHeaders");
-                });
-
-            modelBuilder.Entity("Mango.Services.ShoppingCartAPI.Models.Product", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CategoryName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.HasKey("ProductId");
-
-                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Mango.Services.ShoppingCartAPI.Models.CartDetails", b =>
@@ -102,15 +90,7 @@ namespace Mango.Services.ShoppingCartAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Mango.Services.ShoppingCartAPI.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("CartHeader");
-
-                    b.Navigation("Product");
                 });
 #pragma warning restore 612, 618
         }

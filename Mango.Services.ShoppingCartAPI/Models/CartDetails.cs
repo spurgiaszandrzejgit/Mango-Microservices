@@ -10,14 +10,17 @@ namespace Mango.Services.ShoppingCartAPI.Models
 
         public int CartHeaderId { get; set; }
 
-        [ForeignKey("CartHeaderId")]
-        public virtual CartHeader CartHeader { get; set; }
+        [ForeignKey(nameof(CartHeaderId))]
+        public CartHeader CartHeader { get; set; } = default!;
 
         public int ProductId { get; set; }
 
-        [ForeignKey("ProductId")]
-        public virtual Product Product { get; set; }
-
         public int Count { get; set; }
+
+        [Required]
+        public string ProductName { get; set; } = default!;
+        public double Price { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? CategoryName { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class CartDTO
     {
-        public CartHeaderDTO CartHeader { get; set; }
-        public IEnumerable<CartDetailsDTO>  CartDetails { get; set; }
+        public CartHeaderDTO CartHeader { get; set; } = new();
+        public List<CartDetailsDTO> CartDetails { get; set; } = new();
     }
 }
