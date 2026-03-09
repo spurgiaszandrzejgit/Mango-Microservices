@@ -14,11 +14,9 @@ builder.Services
     .AddRazorRuntimeCompilation();
 
 SD.ProductAPIBase = builder.Configuration["ServiceUrl:ProductAPI"]!;
+SD.ShoppingCartAPIBase = builder.Configuration["ServiceUrl:ShoppingCartAPI"]!;
 
-builder.Services.AddHttpClient("MangoAPI", client =>
-{
-    client.BaseAddress = new Uri(SD.ProductAPIBase);
-});
+builder.Services.AddHttpClient("MangoAPI");
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(options =>
@@ -62,6 +60,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 
 var app = builder.Build();

@@ -11,13 +11,16 @@ namespace Mango.Web.Controllers
         private readonly IProductService _productService;
         private readonly IWebHostEnvironment _env;
         private readonly IFileService _fileService;
+        private readonly ICartService _cartService;
         public ProductsController(IProductService productService,
             IWebHostEnvironment env,
-            IFileService fileService)
+            IFileService fileService,
+            ICartService cartService)
         {
             _productService = productService;
             _env = env;
             _fileService = fileService;
+            _cartService = cartService;
         }
 
         [HttpGet]
@@ -240,6 +243,57 @@ namespace Mango.Web.Controllers
             }
 
             return View(response.Result);
+        }
+
+        [HttpPost]
+        [ActionName("AddToCart")]
+        [Authorize]
+        public async Task<IActionResult> AddToCart(ProductDTO productDto)
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                TempData["error"] = "Access token is missing. Please login again.";
+                return RedirectToAction("Login", "Home");
+            }
+
+            CartDTO cartDTO = new()
+            {
+                CartHeader = new CartHeaderDTO
+                {
+                    UserId = User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value
+                },
+                CartDetails = new List<CartDetailsDTO>()
+            };
+
+            CartDetailsDTO cartDetails = new()
+            {
+                Count = productDto.Count,
+                ProductId = productDto.ProductId
+            };
+
+            var response = await _productService.GetProductByIdAsync(productDto.ProductId, token);
+
+            if (response != null && response.IsSuccess && response.Result != null)
+            {
+                cartDetails.ProductName = response.Result.Name;
+                cartDetails.Price = response.Result.Price;
+                cartDetails.CategoryName = response.Result.CategoryName;
+                cartDetails.ImageUrl = response.Result.ImageUrl;
+            }
+
+            cartDTO.CartDetails.Add(cartDetails);
+
+            var addToCartResp = await _cartService.UpsertCartAsync(cartDTO, token);
+
+            if (addToCartResp != null && addToCartResp.IsSuccess)
+            {
+                TempData["success"] = "Cart updated successfully";
+                return RedirectToAction(nameof(ProductsIndex));
+            }
+
+            return View(productDto);
         }
     }
 }

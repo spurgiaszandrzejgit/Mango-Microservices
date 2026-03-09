@@ -19,7 +19,7 @@ namespace Mango.Services.ShoppingCartAPI.Models
 
         [Required]
         public string ProductName { get; set; } = default!;
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public string? ImageUrl { get; set; }
         public string? CategoryName { get; set; }
     }
