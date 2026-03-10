@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]Mango.Web</title>
+    <title>@ViewData["Title"] Mango.Web</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -12,62 +12,74 @@
 </head>
 <body class="bg-dark text-light">
 
-<header>
-    <nav class="navbar navbar-expand-sm navbar-dark bg-black border-bottom border-secondary shadow-sm mb-4">
-        <div class="container">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-black border-bottom border-secondary shadow-sm mb-4">
+            <div class="container">
 
-            <a class="navbar-brand fw-bold text-warning"
-               asp-area=""
-               asp-controller="Home"
-               asp-action="Index">
-                <img width="35px" src="/images/products/mango.png" class="me-2" />
-                Mango
-            </a>
+                <a class="navbar-brand fw-bold text-warning"
+                   asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index">
+                    <img width="35px" src="/images/products/mango.png" class="me-2" />
+                    Mango
+                </a>
 
-            <button class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target=".navbar-collapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link text-light"
-                           asp-controller="Products"
-                           asp-action="ProductsIndex">
-                            Products
-                        </a>
-                    </li>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-light"
+                               asp-controller="Products"
+                               asp-action="ProductsIndex">
+                                Products
+                            </a>
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link text-light"
-                           asp-controller="Home"
-                           asp-action="Privacy">
-                            Privacy
-                        </a>
-                    </li>
-                </ul>
+                        <li class="nav-item">
+                            <a class="nav-link text-light"
+                               asp-controller="Home"
+                               asp-action="Privacy">
+                                Privacy
+                            </a>
+                        </li>
 
-                <partial name="_LoginPartial" />
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light"
+                                   asp-controller="Cart"
+                                   asp-action="Index">
+                                    <i class="bi bi-cart3 me-1"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+
+                    <partial name="_LoginPartial" />
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
-
-<footer class="border-top border-secondary text-center text-muted py-3 mt-5 bg-black">
     <div class="container">
-        &copy; 2026 - <span class="text-warning">Mango</span>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
-</footer>
+
+    <footer class="border-top border-secondary text-center text-muted py-3 mt-5 bg-black">
+        <div class="container">
+            &copy; 2026 - <span class="text-warning">Mango</span>
+        </div>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

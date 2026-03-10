@@ -6,10 +6,8 @@ namespace Mango.Services.ShoppingCartAPI.Models
     {
         [Key]
         public int CartHeaderId { get; set; }
-
         [Required]
         public string UserId { get; set; } = default!;
-
         public string? CouponCode { get; set; }
     }
 }

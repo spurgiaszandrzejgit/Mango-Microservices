@@ -28,11 +28,15 @@ public class CartRepository : ICartRepository
             .Where(d => d.CartHeaderId == header.CartHeaderId)
             .ToListAsync();
 
-        return new CartDTO
+        var cartDto = new CartDTO
         {
             CartHeader = _mapper.Map<CartHeaderDTO>(header),
             CartDetails = _mapper.Map<List<CartDetailsDTO>>(details)
         };
+
+        cartDto.CartHeader.OrderTotal = details.Sum(item => item.Price * item.Count);
+
+        return cartDto;
     }
 
     // ✅ add/increase (upsert)

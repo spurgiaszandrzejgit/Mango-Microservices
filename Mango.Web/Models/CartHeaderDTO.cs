@@ -5,6 +5,6 @@
         public int CartHeaderId { get; set; }
         public string UserId { get; set; } = default!;
         public string? CouponCode { get; set; }
-        public double OrderTotal { get; set; }
+        public decimal OrderTotal { get; set; }
     }
 }

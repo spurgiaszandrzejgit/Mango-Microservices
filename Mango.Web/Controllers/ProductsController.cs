@@ -290,7 +290,7 @@ namespace Mango.Web.Controllers
             if (addToCartResp != null && addToCartResp.IsSuccess)
             {
                 TempData["success"] = "Cart updated successfully";
-                return RedirectToAction(nameof(ProductsIndex));
+                return RedirectToAction("Index", "Cart");
             }
 
             return View(productDto);
