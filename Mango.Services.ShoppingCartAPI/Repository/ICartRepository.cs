@@ -9,5 +9,6 @@ namespace Mango.Services.ShoppingCartAPI.Repository
         Task<CartDTO> SetItemCount(string userId, int productId, int count); // set count
         Task<bool> RemoveFromCart(string userId, int productId);
         Task<bool> ClearCart(string userId);
+        Task<bool> ApplyCoupon(string userId, string couponCode);
     }
 }

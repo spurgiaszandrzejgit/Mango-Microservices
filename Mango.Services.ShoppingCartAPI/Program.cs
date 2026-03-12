@@ -4,6 +4,7 @@ using Mango.Services.ShoppingCartAPI.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using Mango.Services.ShoppingCartAPI.Protos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,10 +41,16 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
+builder.Services.AddGrpcClient<CouponProtoService.CouponProtoServiceClient>(o =>
+{
+    o.Address = new Uri(builder.Configuration["ServiceUrl:CouponAPI"]!);
+});
+builder.Services.AddScoped<ICouponGrpcService, CouponGrpcService>();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = "https://localhost:44308";
+        options.Authority = builder.Configuration["ServiceUrl:IdentityAPI"]!;
         options.TokenValidationParameters.ValidateAudience = false;
         options.RequireHttpsMetadata = true;
         options.TokenValidationParameters.RoleClaimType = "role";

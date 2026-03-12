@@ -3,6 +3,7 @@
     <Project Path="Mango.Web/Mango.Web.csproj" />
   </Folder>
   <Folder Name="/Services/">
+    <Project Path="Mango.Services.CouponAPI/Mango.Services.CouponAPI.csproj" Id="cdcae092-e284-4b8b-94c2-a1d8156f9a4b" />
     <Project Path="Mango.Services.Identity/Mango.Services.Identity.csproj" />
     <Project Path="Mango.Services.ProductAPI/Mango.Services.ProductAPI.csproj" />
     <Project Path="Mango.Services.ShoppingCartAPI/Mango.Services.ShoppingCartAPI.csproj" Id="f5998ac4-5883-490d-9d6a-587c1e262d80" />

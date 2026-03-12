@@ -8,5 +8,6 @@ namespace Mango.Services.ShoppingCartAPI.Models.DTO
         public string UserId { get; set; } = default!;
         public string? CouponCode { get; set; }
         public decimal OrderTotal { get; set; } = 0;
+        public decimal Discount { get; set; }
     }
 }

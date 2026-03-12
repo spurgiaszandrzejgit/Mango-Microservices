@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "Mango.Services.CouponAPI.Protos";
+
+service CouponProtoService {
+  rpc GetCoupon (GetCouponRequest) returns (CouponModel);
+}
+
+message GetCouponRequest {
+  string couponCode = 1;
+}
+
+message CouponModel {
+  int32 couponId = 1;
+  string couponCode = 2;
+  double discountAmount = 3;
+  int32 minAmount = 4;
+}

@@ -10,11 +10,13 @@ public class CartRepository : ICartRepository
 {
     private readonly ApplicationDbContext _db;
     private readonly IMapper _mapper;
+    private readonly ICouponGrpcService _couponGrpcService;
 
-    public CartRepository(ApplicationDbContext db, IMapper mapper)
+    public CartRepository(ApplicationDbContext db, IMapper mapper, ICouponGrpcService couponGrpcService)
     {
         _db = db;
         _mapper = mapper;
+        _couponGrpcService = couponGrpcService;
     }
 
     public async Task<CartDTO> GetCartByUserId(string userId)
@@ -35,6 +37,18 @@ public class CartRepository : ICartRepository
         };
 
         cartDto.CartHeader.OrderTotal = details.Sum(item => item.Price * item.Count);
+
+        if (!string.IsNullOrWhiteSpace(cartDto.CartHeader.CouponCode))
+        {
+            var coupon = await _couponGrpcService.GetCoupon(cartDto.CartHeader.CouponCode);
+
+            if (!string.IsNullOrWhiteSpace(coupon.CouponCode) &&
+                cartDto.CartHeader.OrderTotal >= coupon.MinAmount)
+            {
+                cartDto.CartHeader.Discount = (decimal)coupon.DiscountAmount;
+                cartDto.CartHeader.OrderTotal -= (decimal)coupon.DiscountAmount;
+            }
+        }
 
         return cartDto;
     }
@@ -173,6 +187,19 @@ public class CartRepository : ICartRepository
         _db.CartHeaders.Remove(header);
 
         await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> ApplyCoupon(string userId, string couponCode)
+    {
+        var cartHeader = await _db.CartHeaders.FirstOrDefaultAsync(x => x.UserId == userId);
+
+        if (cartHeader == null)
+            return false;
+
+        cartHeader.CouponCode = couponCode;
+        await _db.SaveChangesAsync();
+
         return true;
     }
 }

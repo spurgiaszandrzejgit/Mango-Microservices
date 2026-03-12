@@ -6,5 +6,6 @@
         public string UserId { get; set; } = default!;
         public string? CouponCode { get; set; }
         public decimal OrderTotal { get; set; }
+        public decimal Discount { get; set; }
     }
 }

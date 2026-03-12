@@ -63,5 +63,15 @@ namespace Mango.Web.Services
                 AccessToken = token
             });
         }
+
+        public async Task<ResponseDTO<bool>> ApplyCouponAsync(string userId, string couponCode, string token)
+        {
+            return await _baseService.SendAsync<bool>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Url = SD.ShoppingCartAPIBase + $"/api/cart/apply-coupon?userId={Uri.EscapeDataString(userId)}&couponCode={Uri.EscapeDataString(couponCode)}",
+                AccessToken = token
+            });
+        }
     }
 }

@@ -4,6 +4,7 @@
     ViewData["Title"] = "Shopping Cart";
     var subtotal = Model?.CartDetails?.Sum(x => x.Price * x.Count) ?? 0;
     var orderTotal = Model?.CartHeader?.OrderTotal ?? subtotal;
+    var discount = subtotal - orderTotal;
 }
 
 <div class="container mt-4">
@@ -112,6 +113,14 @@
                                 <span>Calculated subtotal:</span>
                                 <span>@subtotal.ToString("C")</span>
                             </div>
+
+                            @if (discount > 0)
+                            {
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount:</span>
+                                    <span>-@discount.ToString("C")</span>
+                                </div>
+                            }
 
                             <hr />
 

@@ -66,9 +66,28 @@ namespace Mango.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult ApplyCoupon(string couponCode)
+        public async Task<IActionResult> ApplyCoupon(string couponCode)
         {
-            TempData["success"] = $"Coupon '{couponCode}' applied.";
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var userId = User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value;
+
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["error"] = "Please login again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var response = await _cartService.ApplyCouponAsync(userId, couponCode, token);
+
+            if (response != null && response.IsSuccess)
+            {
+                TempData["success"] = $"Coupon '{couponCode}' applied.";
+            }
+            else
+            {
+                TempData["error"] = response?.DisplayMessage ?? "Error applying coupon.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

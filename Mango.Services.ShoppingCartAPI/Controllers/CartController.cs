@@ -12,10 +12,12 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ICouponGrpcService _couponGrpcService;
 
-        public CartController(ICartRepository cartRepository)
+        public CartController(ICartRepository cartRepository, ICouponGrpcService couponGrpcService)
         {
             _cartRepository = cartRepository;
+            _couponGrpcService = couponGrpcService;
         }
 
         private string GetUserIdOrThrow(string? fallbackUserId = null)
@@ -173,6 +175,65 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 response.IsSuccess = false;
                 response.Result = false;
                 response.DisplayMessage = "Error clearing cart.";
+                response.ErrorMessages = new List<string> { ex.Message };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet("coupon/{couponCode}")]
+        public async Task<ActionResult<ResponseDTO<CouponDTO>>> GetCoupon(string couponCode)
+        {
+            var response = new ResponseDTO<CouponDTO>();
+
+            try
+            {
+                var coupon = await _couponGrpcService.GetCoupon(couponCode);
+
+                response.Result = new CouponDTO
+                {
+                    CouponId = coupon.CouponId,
+                    CouponCode = coupon.CouponCode,
+                    DiscountAmount = (decimal)coupon.DiscountAmount,
+                    MinAmount = coupon.MinAmount
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.DisplayMessage = "Error getting coupon from CouponAPI via gRPC.";
+                response.ErrorMessages = new List<string> { ex.Message };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost("apply-coupon")]
+        public async Task<ActionResult<ResponseDTO<bool>>> ApplyCoupon([FromQuery] string couponCode, [FromQuery] string? userId = null)
+        {
+            var response = new ResponseDTO<bool>();
+
+            try
+            {
+                var uid = GetUserIdOrThrow(userId);
+                var result = await _cartRepository.ApplyCoupon(uid, couponCode);
+
+                response.Result = result;
+
+                if (!result)
+                {
+                    response.IsSuccess = false;
+                    response.DisplayMessage = "Cart not found.";
+                    return NotFound(response);
+                }
+
+                response.DisplayMessage = "Coupon applied successfully.";
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.DisplayMessage = "Error applying coupon.";
                 response.ErrorMessages = new List<string> { ex.Message };
                 return BadRequest(response);
             }
