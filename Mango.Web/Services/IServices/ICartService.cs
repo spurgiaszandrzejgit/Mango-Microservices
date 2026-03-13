@@ -10,5 +10,6 @@ namespace Mango.Web.Services.IServices
         Task<ResponseDTO<bool>> RemoveItemAsync(int productId, string userId, string token = "");
         Task<ResponseDTO<bool>> ClearCartAsync(string userId, string token = "");
         Task<ResponseDTO<bool>> ApplyCouponAsync(string userId, string couponCode, string token);
+        Task<ResponseDTO<bool>> RemoveCouponAsync(string userId, string token = "");
     }
 }

@@ -5,6 +5,7 @@
     var subtotal = Model?.CartDetails?.Sum(x => x.Price * x.Count) ?? 0;
     var orderTotal = Model?.CartHeader?.OrderTotal ?? subtotal;
     var discount = subtotal - orderTotal;
+    var hasCoupon = !string.IsNullOrWhiteSpace(Model?.CartHeader?.CouponCode);
 }
 
 <div class="container mt-4">
@@ -14,6 +15,20 @@
         </div>
 
         <div class="card-body">
+
+            @if (TempData["success"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["success"]
+                </div>
+            }
+
+            @if (TempData["error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["error"]
+                </div>
+            }
 
             @if (Model == null || Model.CartDetails == null || !Model.CartDetails.Any())
             {
@@ -92,19 +107,43 @@
 
                 <div class="row mt-4">
                     <div class="col-md-6">
-                        <form asp-controller="Cart" asp-action="ApplyCoupon" method="post" class="card card-body">
-                            <label class="form-label fw-semibold">Promo Code</label>
-                            <div class="input-group">
-                                <input type="text"
-                                       name="couponCode"
-                                       value="@Model.CartHeader?.CouponCode"
-                                       class="form-control"
-                                       placeholder="Enter promo code" />
-                                <button type="submit" class="btn btn-primary">
-                                    Apply
-                                </button>
-                            </div>
-                        </form>
+                        <div class="card card-body @(hasCoupon ? "border-success shadow-sm" : "")">
+
+                            <form asp-controller="Cart" asp-action="ApplyCoupon" method="post">
+                                <label class="form-label fw-semibold @(hasCoupon ? "text-success" : "")">
+                                    Promo Code
+                                </label>
+
+                                @if (hasCoupon)
+                                {
+                                    <div class="mb-2 text-success small">
+                                        Applied coupon: <strong>@Model.CartHeader?.CouponCode</strong>
+                                    </div>
+                                }
+
+                                <div class="input-group">
+                                    <input type="text"
+                                           name="couponCode"
+                                           value="@Model.CartHeader?.CouponCode"
+                                           class="form-control"
+                                           placeholder="Enter promo code" />
+
+                                    <button type="submit" class="btn btn-primary">
+                                        Apply
+                                    </button>
+                                </div>
+                            </form>
+
+                            @if (hasCoupon)
+                            {
+                                <form asp-controller="Cart" asp-action="RemoveCoupon" method="post" class="mt-2">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        Remove coupon
+                                    </button>
+                                </form>
+                            }
+
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -137,7 +176,7 @@
                         Back to Main page
                     </a>
 
-                    <form asp-controller="Cart" asp-action="Checkout" method="post">
+                    <form asp-controller="Cart" asp-action="Checkout" method="get">
                         <button type="submit" class="btn btn-success">
                             Order Now
                         </button>

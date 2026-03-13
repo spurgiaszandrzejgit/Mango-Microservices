@@ -92,10 +92,52 @@ namespace Mango.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout()
+        public async Task<IActionResult> RemoveCoupon()
         {
-            TempData["success"] = "Order placed successfully.";
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var userId = User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value;
+
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["error"] = "Please login again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var response = await _cartService.RemoveCouponAsync(userId, token);
+
+            if (response != null && response.IsSuccess)
+            {
+                TempData["success"] = "Coupon removed.";
+            }
+            else
+            {
+                TempData["error"] = response?.DisplayMessage ?? "Error removing coupon.";
+            }
+
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Checkout()
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var userId = User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value;
+
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["error"] = "Please login again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var response = await _cartService.GetCartAsync(userId, token);
+
+            if (response == null || !response.IsSuccess || response.Result == null)
+            {
+                TempData["error"] = "Cart not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(response.Result);
         }
     }
 }

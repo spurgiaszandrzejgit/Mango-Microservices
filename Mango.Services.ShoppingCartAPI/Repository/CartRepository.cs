@@ -202,4 +202,17 @@ public class CartRepository : ICartRepository
 
         return true;
     }
+
+    public async Task<bool> RemoveCoupon(string userId)
+    {
+        var cartHeader = await _db.CartHeaders.FirstOrDefaultAsync(x => x.UserId == userId);
+
+        if (cartHeader == null)
+            return false;
+
+        cartHeader.CouponCode = null;
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
 }

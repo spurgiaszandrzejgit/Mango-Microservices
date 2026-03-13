@@ -238,5 +238,36 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost("remove-coupon")]
+        public async Task<ActionResult<ResponseDTO<bool>>> RemoveCoupon([FromQuery] string? userId = null)
+        {
+            var response = new ResponseDTO<bool>();
+
+            try
+            {
+                var uid = GetUserIdOrThrow(userId);
+                var result = await _cartRepository.RemoveCoupon(uid);
+
+                response.Result = result;
+
+                if (!result)
+                {
+                    response.IsSuccess = false;
+                    response.DisplayMessage = "Cart not found.";
+                    return NotFound(response);
+                }
+
+                response.DisplayMessage = "Coupon removed successfully.";
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.DisplayMessage = "Error removing coupon.";
+                response.ErrorMessages = new List<string> { ex.Message };
+                return BadRequest(response);
+            }
+        }
     }
 }

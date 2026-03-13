@@ -73,5 +73,15 @@ namespace Mango.Web.Services
                 AccessToken = token
             });
         }
+
+        public async Task<ResponseDTO<bool>> RemoveCouponAsync(string userId, string token = "")
+        {
+            return await _baseService.SendAsync<bool>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Url = SD.ShoppingCartAPIBase + $"/api/cart/remove-coupon?userId={Uri.EscapeDataString(userId)}",
+                AccessToken = token
+            });
+        }
     }
 }
