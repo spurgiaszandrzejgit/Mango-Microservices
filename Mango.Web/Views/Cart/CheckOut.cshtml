@@ -1,6 +1,6 @@
 ﻿@model Mango.Web.Models.CartDTO
 
-<form method="post">
+<form method="post" asp-action="Checkout" asp-controller="Cart">
     <div>
         <span style="font-size:25px;" class="text-warning">Enter details and place order :</span>
         <br />
@@ -31,8 +31,11 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">PickUp Time</label>
-                        <input name="PickupTime" class="form-control form_datetime" type="text" />
+                        <label class="col-form-label">PickUp Time :</label>
+                        <input id="pickupTime"
+                               name="pickupTime"
+                               class="form-control"
+                               placeholder="Select pickup time" />
                     </div>
 
                     <div class="col-12">
@@ -57,15 +60,9 @@
                     <div class="card-body">
                         <div class="d-none d-lg-block">
                             <div class="row text-danger">
-                                <div class="col-6">
-                                    Product Details
-                                </div>
-                                <div class="col-3">
-                                    Price
-                                </div>
-                                <div class="col-3">
-                                    Count
-                                </div>
+                                <div class="col-6">Product Details</div>
+                                <div class="col-3">Price</div>
+                                <div class="col-3">Count</div>
                             </div>
                         </div>
 
@@ -97,7 +94,6 @@
                                 @if (Model.CartHeader.Discount > 0)
                                 {
                                     <span>Discount : $@Model.CartHeader.Discount</span>
-
                                     <br />
                                 }
 
@@ -123,3 +119,20 @@
         </div>
     </div>
 </form>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        flatpickr("#pickupTime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            minTime: "10:00",
+            maxTime: "22:00",
+            minuteIncrement: 15,
+            time_24hr: true
+        });
+    });
+</script>
