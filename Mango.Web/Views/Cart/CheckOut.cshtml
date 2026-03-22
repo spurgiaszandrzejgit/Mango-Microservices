@@ -11,43 +11,51 @@
             <div class="col-7">
                 <div class="row">
                     <div class="col-12">
-                        <label class="col-form-label">First Name :</label>
-                        <input name="FirstName" class="form-control" />
+                        <label asp-for="CartHeader.FirstName" class="col-form-label"></label>
+                        <input asp-for="CartHeader.FirstName" class="form-control" />
+                        <span asp-validation-for="CartHeader.FirstName" class="text-danger"></span>
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">Last Name :</label>
-                        <input name="LastName" class="form-control" />
+                        <label asp-for="CartHeader.LastName" class="col-form-label"></label>
+                        <input asp-for="CartHeader.LastName" class="form-control" />
+                        <span asp-validation-for="CartHeader.LastName" class="text-danger"></span>
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">Email :</label>
-                        <input name="Email" class="form-control" />
+                        <label asp-for="CartHeader.Email" class="col-form-label"></label>
+                        <input asp-for="CartHeader.Email" class="form-control" />
+                        <span asp-validation-for="CartHeader.Email" class="text-danger"></span>
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">Phone :</label>
-                        <input name="Phone" class="form-control" />
+                        <label asp-for="CartHeader.Phone" class="col-form-label"></label>
+                        <input asp-for="CartHeader.Phone" class="form-control" />
+                        <span asp-validation-for="CartHeader.Phone" class="text-danger"></span>
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">PickUp Time</label>
-                        <input name="PickupTime" class="form-control form_datetime" type="text" />
+                        <label asp-for="CartHeader.PickupDateTime" class="col-form-label"></label>
+                        <input asp-for="CartHeader.PickupDateTime" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="CartHeader.PickupDateTime" class="text-danger"></span>
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">Card Number :</label>
-                        <input name="CardNumber" class="form-control" />
+                        <label asp-for="CartHeader.CardNumber" class="col-form-label"></label>
+                        <input asp-for="CartHeader.CardNumber" class="form-control" />
+                        <span asp-validation-for="CartHeader.CardNumber" class="text-danger"></span>
                     </div>
 
                     <div class="col-12">
-                        <label class="col-form-label">CVV :</label>
-                        <input name="CVV" class="form-control" />
+                        <label asp-for="CartHeader.CVV" class="col-form-label"></label>
+                        <input asp-for="CartHeader.CVV" class="form-control" />
+                        <span asp-validation-for="CartHeader.CVV" class="text-danger"></span>
                     </div>
 
                     <div class="col-12 pb-4">
-                        <label class="col-form-label">Expiry :</label>
-                        <input name="ExpiryMonthYear" placeholder="MMYY" class="form-control" />
+                        <label asp-for="CartHeader.ExpiryMonthYear" class="col-form-label"></label>
+                        <input asp-for="CartHeader.ExpiryMonthYear" placeholder="MMYY" class="form-control" />
+                        <span asp-validation-for="CartHeader.ExpiryMonthYear" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -94,11 +102,13 @@
                             <div class="col-12 text-end pe-4 text-danger">
                                 Order Total : $@Model.CartHeader.OrderTotal <br />
 
+                            </div>
+                            <div class="col-12 text-end pe-4 text-success">
                                 @if (Model.CartHeader.Discount > 0)
                                 {
-                                    <span>Discount : $@Model.CartHeader.Discount</span>
+                                        <span>Discount : $@Model.CartHeader.Discount</span>
 
-                                    <br />
+                                        <br />
                                 }
 
                                 @if (!string.IsNullOrWhiteSpace(Model.CartHeader.CouponCode))
@@ -106,6 +116,7 @@
                                     <span>Coupon : @Model.CartHeader.CouponCode</span>
                                 }
                             </div>
+                            
                         </div>
                     </div>
 

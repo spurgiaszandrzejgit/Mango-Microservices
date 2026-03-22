@@ -3,6 +3,7 @@ using Mango.Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 
 namespace Mango.Web.Controllers
 {
@@ -138,6 +139,37 @@ namespace Mango.Web.Controllers
             }
 
             return View(response.Result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CartDTO cartDTO)
+        {
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var userId = User.Claims.FirstOrDefault(u => u.Type == "sub")?.Value;
+
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["error"] = "Please login again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            cartDTO.CartHeader.UserId = userId;
+
+            var response = await _cartService.CheckoutAsync(cartDTO.CartHeader, token);
+
+            if (response != null && response.IsSuccess)
+            {
+                return RedirectToAction("Confirmation");
+            }
+
+            TempData["error"] = response?.DisplayMessage ?? "Error during checkout.";
+            return View(cartDTO);
+        }
+
+        [HttpGet]
+        public IActionResult Confirmation()
+        {
+            return View();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Mango.Services.ProductAPI.Models.DTO;
+using Mango.Services.ShoppingCartAPI.Messages;
 using Mango.Services.ShoppingCartAPI.Models.DTO;
 using Mango.Services.ShoppingCartAPI.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -268,6 +269,44 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 response.ErrorMessages = new List<string> { ex.Message };
                 return BadRequest(response);
             }
+        }
+
+        [HttpPost("checkout")]
+        public async Task<IActionResult> Checkout(CheckoutHeaderDTO checkoutHeader)
+        {
+            var response = new ResponseDTO<bool>();
+
+            try
+            {
+                CartDTO cartDTO = await _cartRepository.GetCartByUserId(checkoutHeader.UserId);
+
+                if (cartDTO == null)
+                {
+                    response.IsSuccess = false;
+                    response.ErrorMessages = new List<string> { "Cart not found." };
+                    return BadRequest(response);
+                }
+
+                checkoutHeader.CartDetails = cartDTO.CartDetails;
+                checkoutHeader.CouponCode = cartDTO.CartHeader.CouponCode;
+                checkoutHeader.Discount = cartDTO.CartHeader.Discount;
+                checkoutHeader.OrderTotal = cartDTO.CartHeader.OrderTotal;
+                checkoutHeader.CartTotalItems = cartDTO.CartDetails.Sum(x => x.Count);
+
+                // отправка checkoutHeader в RabbitMQ / Order API
+
+                response.Result = true;
+                response.DisplayMessage = "Order placed successfully.";
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                return BadRequest(response);
+            }
+
+            return Ok(response);
         }
     }
 }

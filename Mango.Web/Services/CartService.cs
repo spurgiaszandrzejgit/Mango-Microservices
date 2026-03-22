@@ -83,5 +83,16 @@ namespace Mango.Web.Services
                 AccessToken = token
             });
         }
+
+        public async Task<ResponseDTO<bool>> CheckoutAsync(CartHeaderDTO cartHeader, string token = "")
+        {
+            return await _baseService.SendAsync<bool>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = cartHeader,
+                Url = SD.ShoppingCartAPIBase + $"/api/cart/checkout",
+                AccessToken = token
+            });
+        }
     }
 }
