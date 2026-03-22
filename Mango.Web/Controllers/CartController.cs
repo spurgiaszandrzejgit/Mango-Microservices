@@ -115,7 +115,9 @@ namespace Mango.Web.Controllers
             }
 
             return RedirectToAction(nameof(Index));
-        }
+        } 
+
+        //
 
         [HttpGet]
         public async Task<IActionResult> Checkout()
