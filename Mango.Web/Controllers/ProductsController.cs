@@ -291,7 +291,7 @@ namespace Mango.Web.Controllers
             {
                 TempData["success"] = "Cart updated successfully";
                 return RedirectToAction("Index", "Cart");
-            }
+            }//
 
             return View(productDto);
         }
